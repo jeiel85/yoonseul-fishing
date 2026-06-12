@@ -1,0 +1,6 @@
+{
+  "name": "윤슬낚시",
+  "description": "파스텔톤의 2.5D 로우폴리 스타일로 구현된 힐링 낚시 게임입니다. 시간에 다른 햇살과 노을, 별빛 가득한 한밤의 윤슬을 느끼며 마음에 휴식을 선물하세요.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
