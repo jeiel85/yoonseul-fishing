@@ -1,4 +1,4 @@
-package com.example.ui
+package com.jeiel85.healingfishing.ui
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -51,8 +51,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.data.CaughtFishEntity
-import com.example.data.FishSpecies
+import com.jeiel85.healingfishing.data.CaughtFishEntity
+import com.jeiel85.healingfishing.data.FishSpecies
 import kotlinx.coroutines.isActive
 import java.text.SimpleDateFormat
 import java.util.*

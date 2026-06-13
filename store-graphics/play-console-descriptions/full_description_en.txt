@@ -1,0 +1,11 @@
+Take a gentle pause in your busy daily life.
+
+'Yoonseul Fishing' is a 2.5D low-poly mindfulness fishing app named after the beautiful Korean word 'Yoonseul'—which represents the sparkling ripples of sun or moonlight dancing on the water surface.
+
+There are no complex requirements, no competition, and no in-app purchases. Simply throw your bobber into the water, listen to the real-time synthesized atmospheric sounds (pentatonic chimes, rain, wind, crickets), and peacefully wait for a bite.
+
+Features:
+- Dynamic Yoonseul Visuals: Watch the sky and water colors blend smoothly across day, sunset, and starry night phases.
+- Procedural Audio Engine: Background sounds are generated entirely in real-time, matching weather patterns with soothing major pentatonic chimes.
+- 12 Unique Fish Species: Discover various creatures from the golden crucian to the legendary moonlight catfish and the mythical starlight whale.
+- Upgrades & Collection: Earn coins, buy specialized baits, level up, and complete your fish encyclopedia.

@@ -1,4 +1,4 @@
-package com.example
+package com.jeiel85.healingfishing
 
 import org.junit.Assert.*
 import org.junit.Test

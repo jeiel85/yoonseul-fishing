@@ -1,4 +1,4 @@
-package com.example
+package com.jeiel85.healingfishing
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
-import com.example.ui.AudioSynthesizer
-import com.example.ui.FishingViewModel
-import com.example.ui.FishingViewModelFactory
-import com.example.ui.HealingFishingGame
-import com.example.ui.theme.MyApplicationTheme
+import com.jeiel85.healingfishing.ui.AudioSynthesizer
+import com.jeiel85.healingfishing.ui.FishingViewModel
+import com.jeiel85.healingfishing.ui.FishingViewModelFactory
+import com.jeiel85.healingfishing.ui.HealingFishingGame
+import com.jeiel85.healingfishing.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
     private var audioSynthesizer: AudioSynthesizer? = null

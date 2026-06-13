@@ -1,4 +1,4 @@
-package com.example.ui
+package com.jeiel85.healingfishing.ui
 
 import android.content.Context
 import android.media.AudioAttributes

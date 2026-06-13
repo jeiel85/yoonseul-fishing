@@ -1,3 +1,78 @@
+import org.gradle.api.DefaultTask
+import org.gradle.api.provider.Property
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.GradleException
+import java.io.File
+
+abstract class ExportReleaseToDesktopTask : DefaultTask() {
+  @get:Input
+  abstract val versionName: Property<String>
+
+  @get:Input
+  abstract val versionCode: Property<Int>
+
+  @get:InputFile
+  abstract val aabFile: RegularFileProperty
+
+  @get:InputFile
+  abstract val releaseNotesFile: RegularFileProperty
+
+  @TaskAction
+  fun export() {
+    val home = File(System.getProperty("user.home"))
+    val candidates = listOf(
+      File(home, "OneDrive/바탕 화면"),
+      File(home, "OneDrive/Desktop"),
+      File(home, "Desktop")
+    )
+    val desktop = candidates.firstOrNull { it.isDirectory }
+      ?: throw GradleException(
+        "Could not find a Desktop directory. Tried:\n" +
+          candidates.joinToString("\n") { "  - ${it.absolutePath}" }
+      )
+
+    val buildDir = File(desktop, "Build")
+    if (!buildDir.exists()) {
+      buildDir.mkdirs()
+    }
+
+    val aab = aabFile.get().asFile
+    if (!aab.isFile) {
+      throw GradleException(
+        "Release AAB not found at ${aab.absolutePath}. " +
+          "bundleRelease should have produced it; check the build log."
+      )
+    }
+
+    val releaseNotes = releaseNotesFile.get().asFile
+    if (!releaseNotes.isFile) {
+      throw GradleException(
+        "Missing release notes at ${releaseNotes.absolutePath}."
+      )
+    }
+
+    val releaseNotesText = releaseNotes.readText().trim()
+    if (!releaseNotesText.contains("<ko-KR>") || !releaseNotesText.contains("<en-US>")) {
+      throw GradleException(
+        "Release notes must contain <ko-KR> and <en-US> blocks: ${releaseNotes.absolutePath}"
+      )
+    }
+
+    val baseName = "YoonseulFishing-v${versionName.get()}-vc${versionCode.get()}"
+    val aabTarget = File(buildDir, "$baseName.aab")
+    val txtTarget = File(buildDir, "$baseName-release-notes.txt")
+
+    aab.copyTo(aabTarget, overwrite = true)
+    txtTarget.writeText(releaseNotesText + System.lineSeparator())
+
+    logger.lifecycle("Wrote ${aabTarget.absolutePath} (${aabTarget.length()} bytes)")
+    logger.lifecycle("Wrote ${txtTarget.absolutePath} (${txtTarget.length()} bytes)")
+  }
+}
+
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
@@ -7,11 +82,11 @@ plugins {
 }
 
 android {
-  namespace = "com.example"
+  namespace = "com.jeiel85.healingfishing"
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
   defaultConfig {
-    applicationId = "com.jeiel85.yoonseulfishing.kpwqz"
+    applicationId = "com.jeiel85.healingfishing"
     minSdk = 24
     targetSdk = 36
     versionCode = 1
@@ -44,7 +119,7 @@ android {
       signingConfig = signingConfigs.getByName("release")
     }
     debug {
-      signingConfig = signingConfigs.getByName("debugConfig")
+      // signingConfig = signingConfigs.getByName("debugConfig")
     }
   }
   compileOptions {
@@ -118,4 +193,22 @@ dependencies {
   debugImplementation(libs.androidx.compose.ui.tooling)
   "ksp"(libs.androidx.room.compiler)
   "ksp"(libs.moshi.kotlin.codegen)
+}
+
+val exportVersionName = android.defaultConfig.versionName
+  ?: throw GradleException("versionName is not set in defaultConfig")
+val exportVersionCode = android.defaultConfig.versionCode
+  ?: throw GradleException("versionCode is not set in defaultConfig")
+val exportReleaseAab = layout.buildDirectory.file("outputs/bundle/release/app-release.aab")
+val exportReleaseNotes = rootProject.layout.projectDirectory.file("store-graphics/play-console-current/release-notes.txt")
+
+tasks.register<ExportReleaseToDesktopTask>("exportReleaseToDesktop") {
+  group = "healingfishing"
+  description = "Copies the release AAB and Play Console release notes to the Build directory on user's Desktop"
+
+  dependsOn("bundleRelease")
+  versionName.set(exportVersionName)
+  versionCode.set(exportVersionCode)
+  aabFile.set(exportReleaseAab)
+  releaseNotesFile.set(exportReleaseNotes)
 }

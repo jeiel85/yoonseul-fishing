@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>윤슬낚시 - 잔잔한 물결 속 힐링 피싱</title>
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="바쁜 일상 속에서 잔잔한 물결(윤슬)을 보며 지친 마음을 녹이는 2.5D 로우폴리 힐링 낚시 게임, 윤슬낚시(Yoonseul Fishing) 공식 소개 페이지입니다.">
+    <meta name="keywords" content="윤슬낚시, Yoonseul Fishing, 힐링게임, 인디게임, 안드로이드게임, Jetpack Compose, Procedural Audio">
+    <meta property="og:title" content="윤슬낚시 (Yoonseul Fishing) - 잔잔한 물결 속 힐링 피싱">
+    <meta property="og:description" content="물결 위의 반짝임과 절차적 음악 엔진이 선사하는 편안한 위로의 낚시 게임">
+    <meta property="og:type" content="website">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: hsl(225, 25%, 7%);
+            --text-color: hsl(210, 20%, 98%);
+            --text-muted: hsl(215, 15%, 70%);
+            --accent-sunset: linear-gradient(135deg, hsl(20, 95%, 65%), hsl(340, 90%, 60%));
+            --accent-galaxy: linear-gradient(135deg, hsl(265, 85%, 68%), hsl(315, 80%, 65%));
+            --accent-lake: linear-gradient(135deg, hsl(175, 75%, 45%), hsl(205, 85%, 50%));
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --glass-shine: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        /* Ambient Background Water Waves Simulation */
+        #water-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        /* Container & Navigation */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        header {
+            padding: 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 24px;
+            background: var(--accent-lake);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo span {
+            font-size: 20px;
+        }
+
+        .github-link {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 99px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(12px);
+        }
+
+        .github-link:hover {
+            background: var(--glass-shine);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 96px 0 64px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        .badge {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 6px 16px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: hsl(175, 75%, 65%);
+            margin-bottom: 24px;
+            backdrop-filter: blur(12px);
+            animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(165, 230, 216, 0.2); }
+            50% { box-shadow: 0 0 16px 2px rgba(165, 230, 216, 0.4); }
+        }
+
+        .hero h1 {
+            font-size: 64px;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ffffff 30%, hsl(205, 30%, 80%) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-muted);
+            max-width: 680px;
+            margin-bottom: 40px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 64px;
+        }
+
+        .btn {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: var(--accent-lake);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 8px 30px rgba(13, 148, 136, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 16px 40px rgba(13, 148, 136, 0.5);
+        }
+
+        .btn-secondary {
+            background: var(--glass-bg);
+            color: var(--text-color);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(12px);
+        }
+
+        .btn-secondary:hover {
+            background: var(--glass-shine);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Mockup Frame */
+        .mockup-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 16px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(24px);
+            margin-bottom: 96px;
+            transform: perspective(1000px) rotateX(5deg);
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .mockup-container:hover {
+            transform: perspective(1000px) rotateX(0deg) translateY(-8px);
+        }
+
+        .mockup-header {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            padding-left: 8px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .mockup-screen {
+            background: linear-gradient(to bottom, #101528, #182342);
+            border-radius: 16px;
+            aspect-ratio: 16/9;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* Simulated Game visual inside mockup */
+        .game-visual-sim {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px;
+        }
+
+        .game-top-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            z-index: 2;
+        }
+
+        .game-ui-bubble {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 500;
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .game-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            z-index: 2;
+            cursor: pointer;
+        }
+
+        .sim-boat {
+            font-size: 64px;
+            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+            animation: boat-float 4s ease-in-out infinite;
+        }
+
+        @keyframes boat-float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(-2deg); }
+        }
+
+        .sim-bobber {
+            position: absolute;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bobber-float 2s ease-in-out infinite;
+        }
+
+        .sim-bobber-ball {
+            width: 16px;
+            height: 16px;
+            background: #ff4757;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .sim-ripples {
+            position: absolute;
+            width: 48px;
+            height: 12px;
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: ripple-out 2s infinite linear;
+        }
+
+        @keyframes bobber-float {
+            0%, 100% { transform: translate(-50%, 0); }
+            50% { transform: translate(-50%, 4px); }
+        }
+
+        @keyframes ripple-out {
+            0% { width: 10px; height: 3px; opacity: 1; }
+            100% { width: 120px; height: 30px; opacity: 0; }
+        }
+
+        .game-water-bg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 45%;
+            background: linear-gradient(180deg, rgba(144, 194, 200, 0.25) 0%, rgba(38, 50, 92, 0.6) 100%);
+            border-top: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .prompt-click {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(0,0,0,0.4);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 64px 0 96px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff, hsl(210, 20%, 80%));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-desc {
+            text-align: center;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 64px;
+            font-size: 16px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 32px;
+            backdrop-filter: blur(12px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .feature-card:nth-child(1) .feature-icon {
+            color: hsl(175, 75%, 65%);
+        }
+        .feature-card:nth-child(2) .feature-icon {
+            color: hsl(20, 95%, 65%);
+        }
+        .feature-card:nth-child(3) .feature-icon {
+            color: hsl(265, 85%, 75%);
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Sound Preview Section (Interactive Synthesizer) */
+        .sound-preview {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 48px;
+            backdrop-filter: blur(24px);
+            margin-bottom: 96px;
+            text-align: center;
+        }
+
+        .synth-grid {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 32px 0 24px;
+        }
+
+        .synth-key {
+            padding: 18px 24px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            color: var(--text-color);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 70px;
+        }
+
+        .synth-key:hover {
+            background: var(--glass-shine);
+            border-color: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+
+        .synth-key:active {
+            transform: scale(0.95);
+            background: hsl(175, 75%, 45%);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--glass-border);
+            padding: 48px 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        footer p {
+            margin-bottom: 12px;
+        }
+
+        /* Responsive Layouts */
+        @media (max-width: 992px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .hero h1 {
+                font-size: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="water-canvas"></canvas>
+
+    <header class="container">
+        <div class="logo">
+            <span>🌊</span> 윤슬낚시
+        </div>
+        <a href="https://github.com/jeiel85/healing-fishing" class="github-link" target="_blank">GitHub 프로젝트</a>
+    </header>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="badge">PRODUCERAL AUDIO & VISUAL</div>
+            <h1>물결 위의 반짝임,<br>지친 마음에 건네는 고요함</h1>
+            <p>바쁜 하루 끝자락, 바람의 소리와 절차적으로 펼쳐지는 편안한 펜타토닉 가락 속에서 잔잔히 요동치는 호숫가에 찌를 띄워보세요.</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/jeiel85/healing-fishing/releases" class="btn btn-primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    최신 APK 다운로드
+                </a>
+                <a href="#interactive-chime" class="btn btn-secondary">사운드 미리듣기</a>
+            </div>
+
+            <!-- Interactive Mockup -->
+            <div class="mockup-container">
+                <div class="mockup-header">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <div class="mockup-screen" id="mockup-screen">
+                    <div class="game-water-bg"></div>
+                    <div class="sim-ripples"></div>
+                    <div class="sim-bobber">
+                        <div class="sim-bobber-ball"></div>
+                    </div>
+                    <div class="game-visual-sim">
+                        <div class="game-top-bar">
+                            <div class="game-ui-bubble">🌅 Windy Valley</div>
+                            <div class="game-ui-bubble">🪙 1,250 Gold</div>
+                        </div>
+                        <div class="game-center" onclick="triggerMockupTap()">
+                            <div class="sim-boat">⛵</div>
+                            <div class="prompt-click">화면을 탭하여 수면을 두드려보세요</div>
+                        </div>
+                        <div class="game-top-bar" style="justify-content: center;">
+                            <div class="game-ui-bubble" style="background: rgba(0,0,0,0.5);">LV.4 Fishing Master</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features">
+            <h2 class="section-title">가장 순수한 형태의 힐링</h2>
+            <p class="section-desc">복잡한 규칙과 결제를 배제하고, 자연과 리듬 그리고 수집의 본질에 집중했습니다.</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🌊</div>
+                    <h3>2.5D 로우폴리 윤슬 비주얼</h3>
+                    <p>햇살에 반짝이는 고유한 강물결 효과(윤슬)와 수채화 톤의 산등성이를 2.5D 캔버스로 담았습니다. 시간과 날씨의 변화에 따라 그래픽의 색조가 따스하게 교차됩니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎵</div>
+                    <h3>실시간 절차적 오디오 엔진</h3>
+                    <p>오디오 파일 자산을 전혀 탑재하지 않고, 오직 실시간 수학 연산으로 자연의 사운드를 합성합니다. 빗소리, 안개 가득한 날의 바람 소리, 밤의 풀벌레 소리가 오가며 편안한 배경음을 생성합니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧆</div>
+                    <h3>상점 및 수집가 도감</h3>
+                    <p>물고기 방생을 통해 모은 골드로 갯지렁이, 크릴새우, 고농축 황금 떡밥 등을 구매해 희귀 생명체를 유혹해 보세요. 총 12종의 신비로운 강바닥 생명체가 낚시꾼을 기다립니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Synthesizer Section -->
+        <section class="sound-preview" id="interactive-chime">
+            <h2 class="section-title">힐링 사운드스케이프 체험</h2>
+            <p class="section-desc">게임 내에 구현된 실시간 오디오 합성 알고리즘을 브라우저에서 가볍게 체험할 수 있습니다. 건반을 누르거나 화면의 물결을 건드려 보세요.</p>
+            
+            <div class="synth-grid">
+                <button class="synth-key" onclick="playChime(329.63)">E4</button>
+                <button class="synth-key" onclick="playChime(392.00)">G4</button>
+                <button class="synth-key" onclick="playChime(440.00)">A4</button>
+                <button class="synth-key" onclick="playChime(493.88)">B4</button>
+                <button class="synth-key" onclick="playChime(587.33)">D5</button>
+                <button class="synth-key" onclick="playChime(659.25)">E5</button>
+                <button class="synth-key" onclick="playChime(783.99)">G5</button>
+                <button class="synth-key" onclick="playChime(880.00)">A5</button>
+                <button class="synth-key" onclick="playChime(987.77)">B5</button>
+                <button class="synth-key" onclick="playChime(1174.66)">D6</button>
+            </div>
+            
+            <div style="font-size: 13px; color: var(--text-muted);">G Major / E Minor 펜타토닉 힐링 주파수 스케일</div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Yoonseul Fishing. MIT License.</p>
+        <p style="font-size: 12px; color: rgba(255,255,255,0.2);">Designed with glassmorphism aesthetics and custom Web Audio synthesis.</p>
+    </footer>
+
+    <script>
+        // Web Audio API context for interactive chimes preview
+        let audioCtx = null;
+        
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playChime(freq) {
+            initAudio();
+            if (!audioCtx) return;
+            
+            // Resume context if suspended (common browser security constraint)
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            
+            // Decaying Envelope
+            const now = audioCtx.currentTime;
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.25, now + 0.02);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 2.0);
+            
+            osc.start(now);
+            osc.stop(now + 2.0);
+        }
+
+        // Mockup Screen Interaction
+        function triggerMockupTap() {
+            const notesList = [329.63, 392.00, 440.00, 493.88, 587.33, 659.25, 783.99, 880.00, 987.77, 1174.66];
+            const randomNote = notesList[Math.floor(Math.random() * notesList.length)];
+            playChime(randomNote);
+
+            // Trigger visual ripple inside mockup
+            const screen = document.getElementById('mockup-screen');
+            const ripple = document.querySelector('.sim-ripples');
+            
+            // Re-trigger CSS animation
+            ripple.style.animation = 'none';
+            ripple.offsetHeight; /* trigger reflow */
+            ripple.style.animation = 'ripple-out 1.8s ease-out';
+        }
+
+        // --- Background Water Waves Canvas Simulation ---
+        const canvas = document.getElementById('water-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let ripples = [];
+        
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        window.addEventListener('resize', resize);
+        resize();
+
+        class WaterRipple {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 2;
+                this.maxRadius = 80 + Math.random() * 80;
+                this.alpha = 0.35;
+                this.speed = 0.8 + Math.random() * 0.6;
+            }
+            
+            update() {
+                this.radius += this.speed;
+                this.alpha = 1 - (this.radius / this.maxRadius);
+                this.alpha = Math.max(0, this.alpha * 0.35);
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.ellipse(this.x, this.y, this.radius, this.radius * 0.35, 0, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(165, 230, 216, ${this.alpha})`;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+        }
+
+        // Add auto ripples periodically
+        setInterval(() => {
+            if (ripples.length < 15) {
+                const rx = Math.random() * canvas.width;
+                const ry = canvas.height * 0.5 + Math.random() * (canvas.height * 0.45);
+                ripples.push(new WaterRipple(rx, ry));
+            }
+        }, 800);
+
+        // Click to generate ripple
+        window.addEventListener('click', (e) => {
+            // Ignore click if it's on a button or link
+            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.closest('header') || e.target.closest('.game-center')) {
+                return;
+            }
+            ripples.push(new WaterRipple(e.clientX, e.clientY));
+            
+            // Also trigger a gentle note!
+            const notesList = [329.63, 392.00, 440.00, 493.88, 587.33, 659.25, 783.99, 880.00];
+            const randomNote = notesList[Math.floor(Math.random() * notesList.length)];
+            playChime(randomNote);
+        });
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background ambient gradient
+            const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grad.addColorStop(0, '#0c101c');
+            grad.addColorStop(0.5, '#0f1424');
+            grad.addColorStop(1, '#151e36');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ripples = ripples.filter(r => {
+                r.update();
+                r.draw();
+                return r.radius < r.maxRadius;
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>
