@@ -166,7 +166,7 @@ class AudioSynthesizer(private val context: Context) {
                 .setBufferSizeInBytes(bufferSize)
                 .setTransferMode(AudioTrack.MODE_STREAM)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 val attributedContext = context.createAttributionContext("default")
                 builder.setContext(attributedContext)
             }

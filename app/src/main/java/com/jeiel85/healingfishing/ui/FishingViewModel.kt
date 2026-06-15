@@ -1,5 +1,6 @@
 package com.jeiel85.healingfishing.ui
 
+import android.Manifest
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
@@ -17,7 +18,9 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 
@@ -1229,6 +1232,12 @@ class FishingViewModel(
         try {
             val context = getApplication<Application>().applicationContext
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return
+            }
             
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val channel = NotificationChannel(

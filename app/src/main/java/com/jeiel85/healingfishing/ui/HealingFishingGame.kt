@@ -113,6 +113,18 @@ data class RainRipple(
     val speed: Float
 )
 
+// Soft drifting light mote for the dreamy "몽글몽글" atmosphere overlay.
+// depth 0 = far/back (small, slow, faint), 1 = near/front (large, faster, brighter) → parallax + DOF feel.
+data class AtmMote(
+    val relX: Float,
+    val baseY: Float,
+    val radius: Float,
+    val depth: Float,
+    val phase: Float,
+    val driftSpeed: Float,
+    val swayAmp: Float
+)
+
 data class TapWaterRipple(
     val x: Float,
     val y: Float,
@@ -266,6 +278,22 @@ fun HealingFishingGame(
         }
     }
 
+    // Soft drifting light motes powering the dreamy atmosphere overlay (bokeh + parallax)
+    val atmosphereMotes = remember {
+        List(26) {
+            val depth = Random.nextFloat()
+            AtmMote(
+                relX = Random.nextFloat(),
+                baseY = Random.nextFloat(),
+                radius = 7f + depth * 30f,
+                depth = depth,
+                phase = Random.nextFloat() * 6.2832f,
+                driftSpeed = 0.006f + depth * 0.018f,
+                swayAmp = 0.008f + depth * 0.022f
+            )
+        }
+    }
+
     // Rain states for dynamic weather
     val rainStrokes = remember {
         mutableStateListOf<RainStroke>().apply {
@@ -357,9 +385,8 @@ fun HealingFishingGame(
                 animationTicks = (frameTime - startTime)
                 
                 // Update splash particles
-                val iterator = particles.iterator()
-                while (iterator.hasNext()) {
-                    val p = iterator.next()
+                for (i in particles.indices.reversed()) {
+                    val p = particles[i]
                     p.x += p.vx
                     p.y += p.vy
                     p.vy += 0.45f // Gravity pulling water down
@@ -367,14 +394,13 @@ fun HealingFishingGame(
                     p.baseSize *= 0.97f
                     p.rotation += p.rotationSpeed
                     if (p.alpha <= 0f || p.baseSize <= 0.5f) {
-                        particles.remove(p)
+                        particles.removeAt(i)
                     }
                 }
 
                 // Update caughtBubbles particles for catching fish dialog
-                val bubbleIterator = caughtBubbles.iterator()
-                while (bubbleIterator.hasNext()) {
-                    val b = bubbleIterator.next()
+                for (i in caughtBubbles.indices.reversed()) {
+                    val b = caughtBubbles[i]
                     b.x += b.vx
                     b.y += b.vy
                     // Slowly drift left-right like water currents
@@ -382,7 +408,7 @@ fun HealingFishingGame(
                     b.age += b.scaleSpeed
                     b.alpha = (1f - b.age / b.maxAge).coerceIn(0f, 1f)
                     if (b.age >= b.maxAge || b.alpha <= 0f) {
-                        caughtBubbles.remove(b)
+                        caughtBubbles.removeAt(i)
                     }
                 }
 
@@ -480,14 +506,13 @@ fun HealingFishingGame(
                 }
 
                 // Update interactive & ambient water ripples
-                val tri = tapRipples.iterator()
-                while (tri.hasNext()) {
-                    val rp = tri.next()
+                for (i in tapRipples.indices.reversed()) {
+                    val rp = tapRipples[i]
                     rp.radius += rp.speed
                     val fadeAmount = if (rp.isUserTap) 0.012f else 0.004f
                     rp.alpha -= fadeAmount
                     if (rp.alpha <= 0f || rp.radius >= rp.maxRadius) {
-                        tri.remove()
+                        tapRipples.removeAt(i)
                     }
                 }
 
@@ -916,8 +941,9 @@ fun HealingFishingGame(
             )
 
             // 5. Draw Jumping Fish in midair during SPLASHING state
-            if (fishingState == FishingState.SPLASHING && lastCaughtFish != null) {
-                val species = FishSpecies.find(lastCaughtFish!!.speciesId)
+            val splashingFish = lastCaughtFish
+            if (fishingState == FishingState.SPLASHING && splashingFish != null) {
+                val species = FishSpecies.find(splashingFish.speciesId)
                 if (species != null) {
                     val bXNum = bobberXState * w
                     val bYNum = bobberYState * h
@@ -1014,6 +1040,15 @@ fun HealingFishingGame(
                     )
                 }
             }
+
+            // --- 7. ATMOSPHERE OVERLAY: dreamy bokeh motes, light bloom, depth haze, vignette ---
+            drawAtmosphere(
+                ticks = animationTicks,
+                motes = atmosphereMotes,
+                timeOfDay = timeOfDay,
+                accent = colorAccent,
+                weather = weather
+            )
         }
 
         // --- 2. THE MINIMALIST FLOATING TOOLBARS ---
@@ -2511,14 +2546,13 @@ fun HealingFishingGame(
          }
 
          // --- 6. INDIVIDUAL FISH DETAILS POPUP ---
-        if (selectedFishDetail != null) {
+        selectedFishDetail?.let { fish ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center
             ) {
-                val fish = selectedFishDetail!!
                 val catches = caughtFishList.filter { it.speciesId == fish.id }
                 val maxLen = catches.maxOfOrNull { it.length } ?: 0f
                 val maxWt = catches.maxOfOrNull { it.weight } ?: 0f
@@ -2718,9 +2752,7 @@ fun HealingFishingGame(
         }
 
         // --- 7. LEVEL UP CELEBRATORY CONGRATULATIONS DIALOG OVERLAY ---
-        if (showLevelUpDialog != null) {
-            val reachedLevel = showLevelUpDialog!!
-            
+        showLevelUpDialog?.let { reachedLevel ->
             // Particles system state
             val sparkles = remember { mutableStateListOf<CelebrationSparkle>() }
             
@@ -3565,6 +3597,86 @@ private fun DrawScope.drawPastelClouds(ticks: Long, alphaMultiplier: Float) {
             center = Offset(smoothX + 60f, pos.y)
         )
     }
+}
+
+// Dreamy atmosphere overlay — soft bokeh light motes, gentle light bloom, a horizon
+// depth haze and a subtle vignette. All additive/soft layers drawn on top of the scene
+// to lend a "몽글몽글" cinematic mood without a real 3D engine.
+private fun DrawScope.drawAtmosphere(
+    ticks: Long,
+    motes: List<AtmMote>,
+    timeOfDay: TimeOfDay,
+    accent: Color,
+    weather: Weather
+) {
+    val w = size.width
+    val h = size.height
+    val t = ticks * 0.001f
+
+    val moteColor = when (timeOfDay) {
+        TimeOfDay.DAY -> Color(0xFFFFF6DF)
+        TimeOfDay.SUNSET -> Color(0xFFFFE1B0)
+        TimeOfDay.NIGHT -> Color(0xFFCBDDFF)
+    }
+    // Rain softens the air; ease the motes back a touch
+    val weatherDamp = if (weather == Weather.RAIN) 0.6f else 1f
+
+    // A. Soft light bloom from the sky — atmospheric scatter near the light source
+    drawRect(
+        brush = Brush.verticalGradient(
+            colors = listOf(accent.copy(alpha = 0.10f), Color.Transparent),
+            startY = 0f,
+            endY = h * 0.45f
+        ),
+        size = Size(w, h * 0.45f),
+        blendMode = BlendMode.Plus
+    )
+
+    // B. Horizon depth haze — light scatters at the waterline, separating mountains from water
+    val horizonY = h * 0.5f
+    val band = h * 0.12f
+    drawRect(
+        brush = Brush.verticalGradient(
+            colors = listOf(Color.Transparent, accent.copy(alpha = 0.13f), Color.Transparent),
+            startY = horizonY - band,
+            endY = horizonY + band
+        ),
+        topLeft = Offset(0f, horizonY - band),
+        size = Size(w, band * 2f),
+        blendMode = BlendMode.Plus
+    )
+
+    // C. Bokeh light motes — multi-depth gentle upward float + sway with a soft twinkle
+    for (m in motes) {
+        val y = (((m.baseY - t * m.driftSpeed) % 1f) + 1f) % 1f
+        val sway = sin(t * (0.4f + m.depth) + m.phase) * m.swayAmp
+        val cx = ((((m.relX + sway) % 1f) + 1f) % 1f) * w
+        val cy = y * h
+        val twinkle = 0.55f + 0.45f * sin(t * 1.2f + m.phase * 1.7f)
+        val a = (0.05f + 0.11f * m.depth) * twinkle * weatherDamp
+        val r = m.radius * (0.7f + 0.6f * m.depth)
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(moteColor.copy(alpha = a), Color.Transparent),
+                center = Offset(cx, cy),
+                radius = r
+            ),
+            radius = r,
+            center = Offset(cx, cy),
+            blendMode = BlendMode.Plus
+        )
+    }
+
+    // D. Subtle vignette — gently darkens the edges for cinematic depth and focus
+    drawRect(
+        brush = Brush.radialGradient(
+            0.55f to Color.Transparent,
+            1.0f to Color(0xFF0A0E1A).copy(alpha = 0.22f),
+            center = Offset(w * 0.5f, h * 0.52f),
+            radius = maxOf(w, h) * 0.78f
+        ),
+        size = size
+    )
 }
 
 private fun DrawScope.drawCelestialSource(
@@ -6623,8 +6735,7 @@ fun CelebrationOverlay(
     language: AppLanguage
 ) {
     val currentCelebration by viewModel.currentCelebration.collectAsState()
-    if (currentCelebration != null) {
-        val celebration = currentCelebration!!
+    currentCelebration?.let { celebration ->
         val isEnglish = language == AppLanguage.EN
         
         // Particles system state
