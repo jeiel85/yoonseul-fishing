@@ -20,7 +20,7 @@
 ---
 
 <p align="center">
-  <img src="store-graphics/feature-graphic-1024x500.png" alt="Yoonseul Fishing Banner" width="760">
+  <img src="store-graphics/banner.jpg" alt="Yoonseul Fishing" width="700">
 </p>
 
 ---
