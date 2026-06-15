@@ -12,7 +12,7 @@ import com.jeiel85.healingfishing.ui.AudioSynthesizer
 import com.jeiel85.healingfishing.ui.FishingViewModel
 import com.jeiel85.healingfishing.ui.FishingViewModelFactory
 import com.jeiel85.healingfishing.ui.HealingFishingGame
-import com.jeiel85.healingfishing.ui.theme.MyApplicationTheme
+import com.jeiel85.healingfishing.ui.theme.HealingFishingTheme
 
 class MainActivity : ComponentActivity() {
     private var audioSynthesizer: AudioSynthesizer? = null
@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            MyApplicationTheme {
+            HealingFishingTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {

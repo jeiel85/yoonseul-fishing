@@ -1,13 +1,26 @@
-# 윤슬낚시 — Yoonseul Fishing
+<p align="center">
+  <img src="store-graphics/icon-512.png" alt="윤슬낚시 아이콘" width="132">
+</p>
 
-> **바쁜 일상 속에서 잔잔한 물결(윤슬)을 바라보며 지친 마음을 녹이는 힐링 낚시 게임**
->
-> *A 2.5D low-poly healing fishing game designed to melt away your tired mind by watching calm water ripples (Yoonseul) and listening to procedurally generated soundscapes.*
+<h1 align="center">윤슬낚시 — Yoonseul Fishing</h1>
+
+<p align="center">
+  <b>바쁜 일상 속에서 잔잔한 물결(윤슬)을 바라보며 지친 마음을 녹이는 힐링 낚시 게임</b><br>
+  <i>A 2.5D low-poly healing fishing game that melts away a tired mind with shimmering water ripples (Yoonseul) and procedurally generated soundscapes.</i>
+</p>
+
+<p align="center">
+  <a href="https://jeiel85.github.io/yoonseul-fishing/"><img alt="Landing Page" src="https://img.shields.io/badge/Landing-Live-7C3AED?style=flat-square"></a>
+  <img alt="Platform" src="https://img.shields.io/badge/Android-7.0%2B%20(API%2024)-3DDC84?style=flat-square&logo=android&logoColor=white">
+  <img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-2.2-7F52FF?style=flat-square&logo=kotlin&logoColor=white">
+  <img alt="Jetpack Compose" src="https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?style=flat-square">
+  <img alt="License" src="https://img.shields.io/badge/License-MIT-44CC11?style=flat-square">
+</p>
 
 ---
 
 <p align="center">
-  <img src="store-graphics/feature-graphic-1024x500.png" alt="Yoonseul Fishing Banner" width="700">
+  <img src="store-graphics/feature-graphic-1024x500.png" alt="Yoonseul Fishing Banner" width="760">
 </p>
 
 ---
@@ -61,7 +74,7 @@ healing-fishing/
           AudioSynthesizer.kt  # 실시간 소리 합성 코어 (AudioTrack)
           FishingViewModel.kt  # 상태 및 퀘스트, 레벨 시스템 관리 비즈니스 로직
           HealingFishingGame.kt # 2.5D Canvas 렌더링 및 UI 전체 구성
-      res/            # 다국어 리소스 (values-ko, values-en) 및 아이콘 벡터 리소스
+      res/            # 다국어 리소스 (values 기본 한국어, values-en 영어) 및 아이콘 벡터 리소스
   docs/               # 웹 랜딩 페이지 및 리소스 자산 (GitHub Pages 호스팅)
   gradle/             # Gradle wrapper 및 의존성 버전 설정 파일
 ```
@@ -78,12 +91,10 @@ healing-fishing/
 
 ### 로컬 실행 방법
 
-1. **프로젝트 루트**에 `.env` 파일을 만들고 아래와 같이 작성합니다. (Secrets Plugin 구동용)
-   ```env
-   GEMINI_API_KEY=dummy_placeholder_key
-   ```
-2. **빌드 및 패키징 실행**:
-   
+별도의 API 키나 시크릿 설정 없이 클론 즉시 빌드됩니다. (완전 오프라인 게임)
+
+1. **빌드 및 패키징 실행**:
+
    **Windows PowerShell**:
    ```powershell
    .\gradlew.bat test
@@ -96,7 +107,7 @@ healing-fishing/
    ./gradlew test
    ./gradlew assembleDebug
    ```
-3. 생성된 APK를 에뮬레이터나 실기 디바이스에 배포하여 구동합니다.
+2. 생성된 APK를 에뮬레이터나 실기 디바이스에 배포하여 구동합니다.
 
 ---
 
