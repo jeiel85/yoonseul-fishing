@@ -7,7 +7,7 @@
 ---
 
 <p align="center">
-  <img src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" alt="Yoonseul Fishing Banner" width="700">
+  <img src="store-graphics/feature-graphic-1024x500.png" alt="Yoonseul Fishing Banner" width="700">
 </p>
 
 ---

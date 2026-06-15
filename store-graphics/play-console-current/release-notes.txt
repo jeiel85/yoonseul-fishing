@@ -1,12 +1,10 @@
 <ko-KR>
-- 패키지명 및 앱 식별자 변경 (com.jeiel85.healingfishing)
-- 2.5D 로우폴리 윤슬 비주얼 렌더링 및 UI 안정성 개선
-- 실시간 펜타토닉 사운드 합성 기능 및 자연 오디오 버그 수정
-- 12종의 강바닥 생명체 수집 도감 완성
+- 깃허브 배너 및 웹 랜딩 페이지 비주얼 최신화
+- 랜딩 페이지 파비콘 추가 및 UI 완성도 상향
+- 최신 SDK 36 지원 기반 빌드 안정성 최적화
 </ko-KR>
 <en-US>
-- Changed package name and application ID to com.jeiel85.healingfishing
-- Improved 2.5D low-poly Yoonseul visual rendering and UI stability
-- Fixed real-time pentatonic chimes synthesis and nature audio bugs
-- Completed encyclopedia collection with 12 species
+- Updated GitHub banner and web landing page visuals
+- Added landing page favicon and enhanced UI polish
+- Optimized build stability supporting the latest SDK 36
 </en-US>

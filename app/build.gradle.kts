@@ -1,6 +1,7 @@
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
@@ -19,6 +20,9 @@ abstract class ExportReleaseToDesktopTask : DefaultTask() {
 
   @get:InputFile
   abstract val releaseNotesFile: RegularFileProperty
+
+  @get:Internal
+  abstract val projectRootDir: DirectoryProperty
 
   @TaskAction
   fun export() {
@@ -68,6 +72,41 @@ abstract class ExportReleaseToDesktopTask : DefaultTask() {
     aab.copyTo(aabTarget, overwrite = true)
     txtTarget.writeText(releaseNotesText + System.lineSeparator())
 
+    val storeAssetsDir = File(buildDir, "store-assets")
+    if (!storeAssetsDir.exists()) {
+      storeAssetsDir.mkdirs()
+    }
+
+    val projectRoot = projectRootDir.get().asFile
+    val storeGraphics = File(projectRoot, "store-graphics")
+
+    val iconSource = File(storeGraphics, "icon-512.png")
+    if (iconSource.isFile) {
+      val iconTarget = File(storeAssetsDir, "icon-512.png")
+      iconSource.copyTo(iconTarget, overwrite = true)
+      logger.lifecycle("Wrote ${iconTarget.absolutePath} (${iconTarget.length()} bytes)")
+    }
+
+    val featureGraphicSource = File(storeGraphics, "feature-graphic-1024x500.png")
+    if (featureGraphicSource.isFile) {
+      val fgTarget = File(storeAssetsDir, "feature-graphic-1024x500.png")
+      featureGraphicSource.copyTo(fgTarget, overwrite = true)
+      logger.lifecycle("Wrote ${fgTarget.absolutePath} (${fgTarget.length()} bytes)")
+    }
+
+    val descriptionsSource = File(storeGraphics, "play-console-descriptions")
+    if (descriptionsSource.isDirectory) {
+      val descriptionsTarget = File(storeAssetsDir, "play-console-descriptions")
+      descriptionsTarget.mkdirs()
+      descriptionsSource.listFiles()?.forEach { file ->
+        if (file.isFile) {
+          val fileTarget = File(descriptionsTarget, file.name)
+          file.copyTo(fileTarget, overwrite = true)
+          logger.lifecycle("Wrote ${fileTarget.absolutePath} (${fileTarget.length()} bytes)")
+        }
+      }
+    }
+
     logger.lifecycle("Wrote ${aabTarget.absolutePath} (${aabTarget.length()} bytes)")
     logger.lifecycle("Wrote ${txtTarget.absolutePath} (${txtTarget.length()} bytes)")
   }
@@ -89,8 +128,8 @@ android {
     applicationId = "com.jeiel85.healingfishing"
     minSdk = 24
     targetSdk = 36
-    versionCode = 1
-    versionName = "1.0"
+    versionCode = 2
+    versionName = "1.1"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
@@ -99,9 +138,9 @@ android {
     create("release") {
       val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
       storeFile = file(keystorePath)
-      storePassword = System.getenv("STORE_PASSWORD")
-      keyAlias = "upload"
-      keyPassword = System.getenv("KEY_PASSWORD")
+      storePassword = System.getenv("STORE_PASSWORD") ?: "android"
+      keyAlias = System.getenv("KEY_ALIAS") ?: "upload"
+      keyPassword = System.getenv("KEY_PASSWORD") ?: "android"
     }
     create("debugConfig") {
       storeFile = file("${rootDir}/debug.keystore")
@@ -211,4 +250,5 @@ tasks.register<ExportReleaseToDesktopTask>("exportReleaseToDesktop") {
   versionCode.set(exportVersionCode)
   aabFile.set(exportReleaseAab)
   releaseNotesFile.set(exportReleaseNotes)
+  projectRootDir.set(rootProject.layout.projectDirectory)
 }
