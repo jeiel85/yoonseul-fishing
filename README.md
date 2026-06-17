@@ -59,7 +59,7 @@
 ## 📦 저장소 구조 (Project Structure)
 
 ```text
-healing-fishing/
+yoonseul-fishing/
   app/
     src/main/
       java/com/jeiel85/healingfishing/
